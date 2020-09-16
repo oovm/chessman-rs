@@ -5,4 +5,5 @@
 extern crate pretty_assertions;
 
 pub mod board;
+mod renderer;
 pub(crate) mod solvers;
