@@ -1,12 +1,12 @@
 [package]
-name = "chessman"
-version = "0.1.0"
+name = "deus-nqueens"
+version = "0.5.1"
 authors = ["Aster <galaster@foxmail.com>"]
 description = "fractal curves generation"
 edition = "2018"
 license = "MPL-2.0"
 readme = "README.md"
-repository = "https://github.com/GalAster/nqueens-rs"
+repository = "https://github.com/oovm/chessman"
 exclude = ["/tests/*", "/.idea/*", "/benches/*"]
 
 
