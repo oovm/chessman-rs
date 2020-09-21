@@ -1,23 +1,28 @@
+use std::collections::BTreeSet;
 use std::iter::from_generator;
 use std::fmt::Display;
+use rand::Rng;
+
+mod display;
 
 #[derive(Clone, Debug)]
 pub struct NQueensState {
     size: isize,
     filled: Vec<isize>,
+    unfilled: BTreeSet<isize>,
 }
 
-mod display;
 
 impl NQueensState {
     pub fn new(size: usize) -> Self {
         Self {
             size: size as isize,
             filled: Vec::with_capacity(size),
+            unfilled: (0..size as isize).collect(),
         }
     }
-    pub fn is_filled(&self) -> bool {
-        self.filled.len() == self.size as usize
+    pub fn full_filled(&self) -> bool {
+        self.unfilled.is_empty()
     }
     pub fn is_solution(&self) -> bool {
         for i in 0..self.size {
@@ -43,24 +48,27 @@ impl NQueensState {
     }
     pub fn go_step(&mut self, column: isize) {
         self.filled.push(column);
+        self.unfilled.remove(&column);
     }
     pub fn go_back(&mut self) {
-        self.filled.pop();
+        match self.filled.pop() {
+            Some(s) => {
+                self.unfilled.insert(s);
+            }
+            None => {}
+        }
     }
 }
 
-
-pub fn solve_n_queens_backtracking(size: usize) -> impl Iterator<Item=NQueensState> {
-    let state = NQueensState::new(size);
-    let mut stack = vec![state];
+pub fn n_queens_backtracking(size: usize) -> impl Iterator<Item=NQueensState> {
+    let mut stack = vec![NQueensState::new(size)];
     from_generator(move || {
         while let Some(mut state) = stack.pop() {
-            let column = state.filled.len() as isize;
-            if state.is_filled() && state.is_solution() {
+            if state.full_filled()  {
                 yield state;
                 continue;
             };
-            for row in 0..state.size {
+            for row in state.unfilled.clone() {
                 if state.valid_at(row) {
                     state.go_step(row);
                     stack.push(state.clone());
@@ -71,9 +79,17 @@ pub fn solve_n_queens_backtracking(size: usize) -> impl Iterator<Item=NQueensSta
     })
 }
 
+pub fn n_queens_greedy(size: usize) -> Vec<NQueensState> {
+    let mut stack = vec![NQueensState::new(size)];
+    todo!()
+}
+
 #[test]
-fn main() {
-    for solution in solve_n_queens_backtracking(4).take(5) {
+fn test_n_queens_backtracking() {
+    let mut count = 0;
+    for solution in n_queens_backtracking(8) {
         println!("{}", solution);
+        count += 1;
     }
+    println!("{} solutions found", count);
 }
