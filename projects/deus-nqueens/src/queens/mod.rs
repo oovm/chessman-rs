@@ -1,9 +1,5 @@
-use rand::Rng;
-use std::{
-    collections::{BTreeMap, BTreeSet},
-    fmt::Display,
-    iter::from_generator,
-};
+use num::Integer;
+use std::{collections::BTreeSet, fmt::Display, iter::from_generator};
 
 mod display;
 
@@ -11,15 +7,15 @@ mod display;
 pub struct NQueensState {
     size: isize,
     filled: Vec<isize>,
-    unfilled: BTreeSet<isize>,
+    unused: BTreeSet<isize>,
 }
 
 impl NQueensState {
     pub fn new(size: usize) -> Self {
-        Self { size: size as isize, filled: Vec::with_capacity(size), unfilled: (0..size as isize).collect() }
+        Self { size: size as isize, filled: Vec::with_capacity(size), unused: (0..size as isize).collect() }
     }
     pub fn full_filled(&self) -> bool {
-        self.unfilled.is_empty()
+        self.unused.is_empty()
     }
     // Rotational symmetry and mirror symmetry points
     pub fn symmetrical(&self, x: isize, y: isize) -> Vec<(isize, isize)> {
@@ -58,20 +54,18 @@ impl NQueensState {
     }
     pub fn go_walk(&mut self, column: isize) {
         self.filled.push(column);
-        self.unfilled.remove(&column);
+        self.unused.remove(&column);
     }
     pub fn go_back(&mut self) {
         match self.filled.pop() {
-            Some(s) => {
-                self.unfilled.insert(s);
-            }
-            None => {}
-        }
+            Some(s) => self.unused.insert(s),
+            None => false,
+        };
     }
 }
 
-/// O(2^n^2) time to find all solutions
-pub fn n_queens_backtracking(size: usize) -> impl Iterator<Item = NQueensState> {
+/// O(n!) time to find all solutions
+pub fn n_queens_backtrack(size: usize) -> impl Iterator<Item = NQueensState> {
     let mut stack = vec![NQueensState::new(size)];
     from_generator(move || {
         while let Some(mut state) = stack.pop() {
@@ -79,7 +73,7 @@ pub fn n_queens_backtracking(size: usize) -> impl Iterator<Item = NQueensState> 
                 yield state;
                 continue;
             };
-            for row in state.unfilled.clone() {
+            for row in state.unused.clone() {
                 if state.valid_at(row) {
                     state.go_walk(row);
                     stack.push(state.clone());
@@ -100,8 +94,21 @@ pub fn n_queens_modular(n: usize) -> Option<NQueensState> {
             1 => return None,
             2 => *arrange.get_unchecked_mut(0) = 1,
             3 | 4 => return None,
+            // Lemma 1.9: n = 12k + 2, where 6k+2, k -> 2k
+            m if n % 12 == 2 => {
+                // println!("1.9: {n}");
+                for i in 1..=n {
+                    *arrange.get_unchecked_mut(i - 1) = match n / 2 {
+                        _ if i == n => (2 * i + 4) % m,
+                        k if i < k && i.is_odd() => (2 * i + 4) % m,
+                        k if i < k && i.is_even() => (2 * i) % m,
+                        _ => (2 * i + 2) % m,
+                    };
+                }
+            }
             // Lemma 1.6: n = 12k-4, where 6k+2, k -> 2k+1
             m if n % 12 == 8 => {
+                // println!("1.6: {n}");
                 for i in 1..=n {
                     *arrange.get_unchecked_mut(i - 1) = match n / 2 {
                         k if n > k && i.is_odd() => (2 * i + 2) % m,
@@ -112,12 +119,14 @@ pub fn n_queens_modular(n: usize) -> Option<NQueensState> {
             }
             // Lemma 1.7: n = 6k, 6k+4
             m if n % 6 == 0 || n % 6 == 4 => {
+                // println!("1.7: {n}");
                 for i in 1..=n {
                     *arrange.get_unchecked_mut(i - 1) = (2 * i) % m
                 }
             }
             // Lemma 1.8: n = 6k + 1, 6k + 5
-            m if n % 1 == 0 || n % 5 == 4 => {
+            m if n % 6 == 1 || n % 6 == 5 => {
+                // println!("1.8: {n}");
                 for i in 1..=n {
                     *arrange.get_unchecked_mut(i - 1) = match n / 2 {
                         k if i > k => (2 * i + 1) % m,
@@ -125,19 +134,9 @@ pub fn n_queens_modular(n: usize) -> Option<NQueensState> {
                     }
                 }
             }
-            // Lemma 1.9: n = 12k + 2, where 6k+2, k -> 2k
-            m if n % 12 == 2 => {
-                for i in 1..=n {
-                    *arrange.get_unchecked_mut(i - 1) = match n / 2 {
-                        _ if i == n => (2 * i + 4) % m,
-                        k if i < k && i.is_odd() => (2 * i + 4) % m,
-                        k if i < k && i.is_even() => (2 * i) % m,
-                        _ => (2 * i + 2) % m,
-                    }
-                }
-            }
             // Lemma 1.10: n = 6k + 3
-            m if n % 3 == 3 => {
+            m if n % 6 == 3 => {
+                // println!("1.10: {n}");
                 for i in 1..=n {
                     *arrange.get_unchecked_mut(i - 1) = match (n - 1) / 2 {
                         k if i < k => (2 * i + 2) % m,
@@ -151,15 +150,15 @@ pub fn n_queens_modular(n: usize) -> Option<NQueensState> {
     }
     Some(NQueensState {
         size: n as isize,
-        filled: arrange.iter().map(|s| *s as isize).collect(),
-        unfilled: BTreeSet::default(),
+        filled: arrange.iter().map(|s| *s as isize - 1).collect(),
+        unused: BTreeSet::default(),
     })
 }
 
 #[test]
 fn test_n_queens_backtracking() {
     let mut count = 0;
-    for n in 0..10 {
+    for n in 0..20 {
         match n_queens_modular(n) {
             None => {
                 println!("{n}: no solutions found");
