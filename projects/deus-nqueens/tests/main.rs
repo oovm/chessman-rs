@@ -1,4 +1,4 @@
-use deus_nqueens::{n_queens_backtrack, n_queens_modular};
+use deus_nqueens::{n_castles_backtrack, n_queens_backtrack, n_queens_modular};
 
 #[test]
 fn test_n_queens_backtrack() {
@@ -23,6 +23,16 @@ fn test_n_queens_backtracking() {
                 count += 1;
             }
         }
+    }
+    println!("{} solutions found", count);
+}
+
+#[test]
+fn test_n_castles_backtrack() {
+    let mut count = 0;
+    for s in n_castles_backtrack(4) {
+        println!("{s}");
+        count += 1;
     }
     println!("{} solutions found", count);
 }

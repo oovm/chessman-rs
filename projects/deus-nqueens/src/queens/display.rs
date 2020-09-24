@@ -1,4 +1,3 @@
-
 use super::*;
 
 impl Display for NQueensState {
@@ -7,7 +6,8 @@ impl Display for NQueensState {
             for column in 0..self.size {
                 if self.filled.contains(&column) && self.filled.iter().position(|&x| x == column).unwrap() as isize == row {
                     write!(f, "Q")?;
-                } else {
+                }
+                else {
                     write!(f, ".")?;
                 }
             }

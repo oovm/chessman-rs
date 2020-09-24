@@ -5,6 +5,6 @@ mod castles;
 mod queens;
 
 pub use crate::{
-    castles::NCastlesState,
+    castles::{n_castles_backtrack, NCastlesState},
     queens::{n_queens_backtrack, n_queens_modular, NQueensState},
 };
