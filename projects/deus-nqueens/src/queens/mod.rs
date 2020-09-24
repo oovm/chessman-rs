@@ -17,22 +17,6 @@ impl NQueensState {
     pub fn full_filled(&self) -> bool {
         self.unused.is_empty()
     }
-    // Rotational symmetry and mirror symmetry points
-    pub fn symmetrical(&self, x: isize, y: isize) -> Vec<(isize, isize)> {
-        let mut symmetry = Vec::with_capacity(8);
-        let s = self.size;
-        let x = x % s;
-        let y = y % s;
-        symmetry.push((x, y));
-        symmetry.push((s - x - 1, y));
-        symmetry.push((x, s - y - 1));
-        symmetry.push((s - x - 1, s - y - 1));
-        symmetry.push((y, x));
-        symmetry.push((s - y - 1, x));
-        symmetry.push((y, s - x - 1));
-        symmetry.push((s - y - 1, s - x - 1));
-        symmetry
-    }
     pub fn is_solution(&self) -> bool {
         for i in 0..self.size {
             if !self.filled.contains(&i) {
@@ -153,21 +137,4 @@ pub fn n_queens_modular(n: usize) -> Option<NQueensState> {
         filled: arrange.iter().map(|s| *s as isize - 1).collect(),
         unused: BTreeSet::default(),
     })
-}
-
-#[test]
-fn test_n_queens_backtracking() {
-    let mut count = 0;
-    for n in 0..20 {
-        match n_queens_modular(n) {
-            None => {
-                println!("{n}: no solutions found");
-            }
-            Some(s) => {
-                println!("{n}: \n{s}");
-                count += 1;
-            }
-        }
-    }
-    println!("{} solutions found", count);
 }
