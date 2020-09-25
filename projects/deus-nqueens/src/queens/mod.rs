@@ -48,7 +48,7 @@ impl NQueensState {
     }
 }
 
-/// O(n!) time to find all solutions
+/// O(n × n!) time to find all solutions
 pub fn n_queens_backtrack(size: usize) -> impl Iterator<Item = NQueensState> {
     let mut stack = vec![NQueensState::new(size)];
     from_generator(move || {

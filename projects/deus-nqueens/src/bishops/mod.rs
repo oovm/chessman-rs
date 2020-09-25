@@ -1,5 +1,4 @@
 use std::{
-    collections::BTreeSet,
     fmt::{Display, Formatter},
     iter::from_generator,
 };
@@ -9,15 +8,14 @@ mod display;
 pub struct NBishopsState {
     size: isize,
     filled: Vec<isize>,
-    unused: BTreeSet<isize>,
 }
 
 impl NBishopsState {
     pub fn new(size: usize) -> Self {
-        Self { size: size as isize, filled: Vec::with_capacity(size), unused: (0..size as isize).collect() }
+        Self { size: size as isize, filled: Vec::with_capacity(size) }
     }
     pub fn full_filled(&self) -> bool {
-        self.unused.is_empty()
+        self.filled.len() == self.size as usize
     }
     pub fn is_solution(&self) -> bool {
         for i in 0..self.size {
@@ -39,18 +37,14 @@ impl NBishopsState {
     }
     pub fn go_walk(&mut self, column: isize) {
         self.filled.push(column);
-        self.unused.remove(&column);
     }
     pub fn go_back(&mut self) {
-        match self.filled.pop() {
-            Some(s) => self.unused.insert(s),
-            None => false,
-        };
+        self.filled.pop();
     }
 }
 
-/// O(n!) time to find all solutions
-pub fn n_bishop_backtrack(size: usize) -> impl Iterator<Item = NBishopsState> {
+/// O(n × n!) time to find all solutions
+pub fn n_bishops_backtrack(size: usize) -> impl Iterator<Item = NBishopsState> {
     let mut stack = vec![NBishopsState::new(size)];
     from_generator(move || {
         while let Some(mut state) = stack.pop() {
@@ -58,7 +52,7 @@ pub fn n_bishop_backtrack(size: usize) -> impl Iterator<Item = NBishopsState> {
                 yield state;
                 continue;
             };
-            for row in state.unused.clone() {
+            for row in 0..state.size {
                 if state.valid_at(row) {
                     state.go_walk(row);
                     stack.push(state.clone());

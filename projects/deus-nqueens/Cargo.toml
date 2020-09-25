@@ -1,11 +1,11 @@
 [package]
 name = "deus-nqueens"
-version = "0.4.1"
+version = "0.4.2"
 authors = ["Aster <galaster@foxmail.com>"]
 description = "fractal curves generation"
 edition = "2018"
 license = "MPL-2.0"
-readme = "README.md"
+readme = "readme.md"
 repository = "https://github.com/oovm/chessman"
 documentation = "https://docs.rs/deus-nqueens"
 

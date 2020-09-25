@@ -6,7 +6,7 @@ mod castles;
 mod queens;
 
 pub use crate::{
-    bishops::{n_bishop_backtrack, NBishopsState},
+    bishops::{n_bishops_backtrack, NBishopsState},
     castles::{n_castles_permute, NCastlesState},
     queens::{n_queens_backtrack, n_queens_modular, NQueensState},
 };
