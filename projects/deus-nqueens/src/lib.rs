@@ -4,6 +4,7 @@
 mod bishops;
 mod castles;
 mod queens;
+mod queens_symmetry;
 
 pub use crate::{
     bishops::{n_bishops_backtrack, NBishopsState},
