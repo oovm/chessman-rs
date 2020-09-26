@@ -14,9 +14,13 @@ fn test_n_queens_backtrack() {
 
 #[test]
 fn test_n_queens_symmetry() {
-    let mut state = NQueensState::new(4);
+    let mut state = NQueensState::new(8);
     state.go_walk(1);
     println!("{:?}", state.symmetry_available_moves());
+    println!("{}", state);
+    state.go_walk(3);
+    println!("{:?}", state.symmetry_available_moves());
+    println!("{}", state);
 
     let mut count = 0;
     for s in n_queens_symmetry(8) {

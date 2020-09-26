@@ -12,6 +12,19 @@ pub struct NQueensState {
 }
 
 impl NQueensState {
+    /// Create a new NQueensState
+    ///
+    /// # Arguments
+    ///
+    /// * `size`:  size of the board
+    ///
+    /// returns: NQueensState
+    ///
+    /// # Examples
+    ///
+    /// ```
+    ///
+    /// ```
     pub fn new(size: usize) -> Self {
         Self { rank: size as isize, filled: Vec::with_capacity(size), unused: (0..size as isize).collect() }
     }
@@ -26,9 +39,11 @@ impl NQueensState {
         }
         true
     }
+    /// All available moves
     pub fn available_moves(&self) -> Vec<isize> {
-        self.unused.iter().copied().collect()
+        self.unused.iter().copied().filter(|x| self.valid_at(*x)).collect()
     }
+
     pub fn valid_at(&self, column: isize) -> bool {
         let row = self.filled.len() as isize;
         self.filled.iter().enumerate().all(|(solution_row, &solution_column)| {
@@ -62,11 +77,9 @@ pub fn n_queens_backtrack(size: usize) -> impl Iterator<Item = NQueensState> {
                 continue;
             };
             for row in state.available_moves() {
-                if state.valid_at(row) {
-                    state.go_walk(row);
-                    stack.push(state.clone());
-                    state.go_back();
-                }
+                state.go_walk(row);
+                stack.push(state.clone());
+                state.go_back();
             }
         }
     })
@@ -82,11 +95,9 @@ pub fn n_queens_symmetry(size: usize) -> impl Iterator<Item = NQueensState> {
                 continue;
             };
             for row in state.symmetry_available_moves() {
-                if state.valid_at(row) {
-                    state.go_walk(row);
-                    stack.push(state.clone());
-                    state.go_back();
-                }
+                state.go_walk(row);
+                stack.push(state.clone());
+                state.go_back();
             }
         }
     })

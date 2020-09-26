@@ -22,16 +22,22 @@ impl NQueensState {
         let mut out = BTreeSet::new();
         for (sx, sy) in self.filled.iter().enumerate() {
             for (x, y) in self.symmetry_point(sx as isize, *sy) {
-                if x == column {
-                    out.insert(y);
+                if y == column {
+                    out.insert(x);
                 }
             }
         }
         out
     }
     pub fn symmetry_available_moves(&self) -> Vec<isize> {
-        let column = self.filled.len();
-        let banned = self.symmetry_banned(column as isize);
-        self.unused.iter().filter(move |x| !banned.contains(x)).copied().collect()
+        let mut out = vec![];
+        let banned = self.symmetry_banned(self.filled.len() as isize);
+        // println!("Banned {:?}", banned);
+        for i in &self.unused {
+            if !banned.contains(i) && self.valid_at(*i) {
+                out.push(*i);
+            }
+        }
+        out
     }
 }
